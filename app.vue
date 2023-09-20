@@ -109,15 +109,14 @@ import AmExCorpImg from "./src/AmericanExpressCorporate.jpg"
 import AmExRewImg from "./src/AmericanExpressRewards.jpg"
 
 export default {
-  data() {
-    return {
-      AmExCards: [
+  setup() {
+      const AmExCards = ref([
         {id: 1, rank: 1, name: 'American Express Platinum', image: AmExPlatImg, bonuses: 50, programs: 0, insurance: 100, travel: 80, interest: 10, price: -50, privacy : 100, score: 0, CardUpgradeInfo: ["Lorem", "Ipsum", "Doloar", "Sit", "Amet"]},
         {id: 2, rank: 2, name: 'American Express Corporate', image: AmExCorpImg, bonuses: 100, programs: 30, insurance: 75, travel: 40, interest: 20, price: 35, privacy : 20, score: 0},
         {id: 3, rank: 3, name: 'American Express Rewards', image: AmExRewImg, bonuses: 0, programs: 100, insurance: 50, travel: -25, interest: 100, price: 100, privacy : -50, score: 0},
         {id: 4, rank: 4, name: 'American Express Gold', image: AmExGoldImg, bonuses: 60, programs: 60, insurance: -25, travel: 80, interest: 50, price: 50, privacy : 20, score: 0},
-      ],
-      SliderValues: [
+      ]);
+      const SliderValues = ref([
         {id: 1, name: 'Bonuses and Offers', value: 0},
         {id: 2, name: 'Events and Programs', value: 0},
         {id: 3, name: 'Insurance and Protection', value: 0},
@@ -125,57 +124,40 @@ export default {
         {id: 5, name: 'Interest and Contributions', value: 0},
         {id: 6, name: 'Price and Upkeep', value: 0},
         {id: 7, name: 'Privacy and Exclusivity', value: 0},
-      ],
-      minVal: 0,
-      maxVal: 2,
-      infoOn: false,
-      statusUpgrades: []
-    }
-  },
-  watch: {
-    SliderValues: {
-      handler(newValues) {
-        newValues.forEach((SliderValues) => {
-          this.getProgress(SliderValues.value);
-          this.calculateScore();
-        });
-      },
-      deep: true
-    }
-  },
-  created() {
-    this.statusUpgrades = this.AmExCards[0].statusUpgrades;
+      ]);
+      const minVal = ref(0);
+      const maxVal = ref(2);
+      const infoOn = ref(false);
+      const statusUpgrades = ref([]);
 
-  },
-  computed() {
-   /* popTransition() {
-      return {
+      watch(sliderValues, (newValues) => {
+        newValues.forEach((SliderValues) => { 
+          getProgress(SliderValues.value);
+          calculateScore();  
+      });
+    }, {deep: true});
 
-      };
-    }*/
-  },
-  methods: {
-    logSliderValues() {
-      this.SliderValues.forEach(slider => {
+    const logSliderValues = () => {
+      SliderValues.value.forEach(slider => {
         console.log(slider.value);
       });
-    },
-    getProgress(currentVal) {
+    };
+    const getProgress = (currentVal) => {
       const resultValue = currentVal; /*((currentVal - this.minVal) / (this.maxVal - this.minVal)) * 100;*/
       console.log(resultValue);
       return resultValue;
-    },
-    calculateScore() {
+    };
+    const calculateScore = () => {
       this.AmExCards.forEach(card => {
         let bonusScore, programScore, insuranceScore, travelScore, interestScore, priceScore, privacyScore = 0;
 
-        bonusScore = this.SliderValues[0].value * card.bonuses;
-        programScore = this.SliderValues[1].value * card.programs;
-        insuranceScore = this.SliderValues[2].value * card.insurance;
-        travelScore = this.SliderValues[3].value * card.travel;
-        interestScore = this.SliderValues[4].value * card.interest;
-        priceScore = this.SliderValues[5].value * card.price;
-        privacyScore = this.SliderValues[6].value * card.privacy;
+        bonusScore = SliderValues.value[0].value * card.bonuses;
+        programScore = SliderValues.value[1].value * card.programs;
+        insuranceScore = SliderValues.value[2].value * card.insurance;
+        travelScore = SliderValues.value[3].value * card.travel;
+        interestScore = SliderValues.value[4].value * card.interest;
+        priceScore = SliderValues.value[5].value * card.price;
+        privacyScore = SliderValues.value[6].value * card.privacy;
 
         let totalScore = 0;
 
@@ -184,14 +166,25 @@ export default {
         totalScore = Math.max(0, Math.min(100, totalScore))
         card.score = totalScore;
 
-        this.AmExCards.sort((a, b) => b.score - a.score);
-        console.log(this.AmExCards[0].name);
+        AmExCards.value.sort((a, b) => b.score - a.score);
+        console.log(AmExCards.value[0].name);
         
       });
-    },
-    displayInfo(cardId) {
+    };
+    displayInfo = (cardId) => {
 
-    }
+    };
+    onMounted(() => {
+    statusUpgrades.value = AmExCards.value[0].statusUpgrades;
+
+    });
+  },
+  computed() {
+   /* popTransition() {
+      return {
+
+      };
+    }*/
   }
 }
 </script>
