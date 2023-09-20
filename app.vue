@@ -32,7 +32,7 @@
             <div class="basis-7/12 text-center mt-8">
                 <h3 class="font-bold text-gray-800 text-lg px-32 mt-5"> {{ card.name }}</h3>
                 <div class="flex flex-row justify-evenly mt-16">
-                    <button @click="popTransition" type="button" :on-submit="displayInfo(card.id)" class="border border-blue-600 text-green-500 w-40 h-10 mr-4">Matches {{ Math.round(card.score) }}%</button>
+                    <button type="button" class="border border-blue-600 text-green-500 w-40 h-10 mr-4">Matches {{ Math.round(card.score) }}%</button>
                     <button type="button" class="border bg-blue-600 w-40 text-white underline h-10 ml-4">Purchase</button>
                 </div>
             </div>
@@ -40,7 +40,7 @@
           </li>
         </ul>
         
-        <div :class="popTransition" class="order-first absolute top-[10.5rem] left-8 w-[39.2%] h-[125%] overflow-auto bg-gray-200">
+        <div :class="popTransition" class="order-first absolute top-[10.5rem] left-8 w-[39.2%] h-[125%] overflow-auto bg-gray-200 invisible">
           <h2 class="text-green-700 text-2xl ml-6 mt-4 font-medium mb-6">Matches {{ }}% to your Preferences!</h2>
           <div class="flex flex-row">
             <div class="basis-1/2">
@@ -66,26 +66,26 @@
           <div class="flex mt-12">
             <div class="pl-8 flex flex-col border-r-gray-400 border-r-2 basis-3/8 px-2">
               <h2 class="text-gray-800 font-semibold leading-4 mb-2">Status Upgrades and More</h2>
-              <ul class="">
-                <li v-for="(info, index) in AmExCards[0].CardUpgradeInfo" :key="index" class="text-center text-gray-500 mb-2">
-                  {{ info }}
+              <ul>
+                <li v-if="AmExCards && AmExCards.length > 0" v-for="(card, index) in AmExCards" :key="index" class="text-center text-gray-500 mb-2">
+                  <span v-for="(info, infoIndex) in card.CardUpgradeInfo" :key="infoIndex">{{ info }}</span>
                 </li>
               </ul>
             </div>
             <div class="flex flex-col border-r-gray-400 border-r-2 basis-2/8 px-2">
               <h2 class="text-gray-800 font-semibold leading-4 mb-2">Bonus Programs and Benefits</h2> 
-              <ul class="">
-                <li v-for="(info, index) in AmExCards[0].CardUpgradeInfo" :key="index" class="text-center text-gray-500 mb-2">
-                  {{ info }}
+              <ul>
+                <li v-if="AmExCards && AmExCards.length > 0" v-for="(card, index) in AmExCards" :key="index" class="text-center text-gray-500 mb-2">
+                  <span v-for="(info, infoIndex) in card.CardUpgradeInfo" :key="infoIndex">{{ info }}</span>
                 </li>
               </ul>
             </div>
             <div class="pr-8 flex flex-col basis-3/8 px-2">
               <h2 class="text-gray-800 font-semibold leading-4 mb-2">Insurance and Protection</h2>
-              <ul class="">
-                <li v-for="(info, index) in AmExCards[0].CardUpgradeInfo" :key="index" class="text-center text-gray-500 mb-2">
-                  {{ info }}
-                </li>
+              <ul>
+                <li v-if="AmExCards && AmExCards.length > 0" v-for="(card, index) in AmExCards" :key="index" class="text-center text-gray-500 mb-2">
+                  <span v-for="(info, infoIndex) in card.CardUpgradeInfo" :key="infoIndex">{{ info }}</span>
+                </li> 
               </ul>
             </div>
           </div>
@@ -108,32 +108,34 @@ import AmExGoldImg from "./src/AmericanExpressGold.jpg"
 import AmExCorpImg from "./src/AmericanExpressCorporate.jpg"
 import AmExRewImg from "./src/AmericanExpressRewards.jpg"
 
+import { ref, onMounted, watch } from 'vue'
+
 export default {
   setup() {
-      const AmExCards = ref([
-        {id: 1, rank: 1, name: 'American Express Platinum', image: AmExPlatImg, bonuses: 50, programs: 0, insurance: 100, travel: 80, interest: 10, price: -50, privacy : 100, score: 0, CardUpgradeInfo: ["Lorem", "Ipsum", "Doloar", "Sit", "Amet"]},
-        {id: 2, rank: 2, name: 'American Express Corporate', image: AmExCorpImg, bonuses: 100, programs: 30, insurance: 75, travel: 40, interest: 20, price: 35, privacy : 20, score: 0},
-        {id: 3, rank: 3, name: 'American Express Rewards', image: AmExRewImg, bonuses: 0, programs: 100, insurance: 50, travel: -25, interest: 100, price: 100, privacy : -50, score: 0},
-        {id: 4, rank: 4, name: 'American Express Gold', image: AmExGoldImg, bonuses: 60, programs: 60, insurance: -25, travel: 80, interest: 50, price: 50, privacy : 20, score: 0},
-      ]);
-      const SliderValues = ref([
-        {id: 1, name: 'Bonuses and Offers', value: 0},
-        {id: 2, name: 'Events and Programs', value: 0},
-        {id: 3, name: 'Insurance and Protection', value: 0},
-        {id: 4, name: 'Travel and Mobility', value: 0},
-        {id: 5, name: 'Interest and Contributions', value: 0},
-        {id: 6, name: 'Price and Upkeep', value: 0},
-        {id: 7, name: 'Privacy and Exclusivity', value: 0},
-      ]);
-      const minVal = ref(0);
-      const maxVal = ref(2);
-      const infoOn = ref(false);
-      const statusUpgrades = ref([]);
+    const AmExCards = ref([
+      {id: 1, rank: 1, name: 'American Express Platinum', image: AmExPlatImg, bonuses: 50, programs: 0, insurance: 100, travel: 80, interest: 10, price: -50, privacy : 100, score: 0, CardUpgradeInfo: ["Lorem", "Ipsum", "Doloar", "Sit", "Amet"]},
+      {id: 2, rank: 2, name: 'American Express Corporate', image: AmExCorpImg, bonuses: 100, programs: 30, insurance: 75, travel: 40, interest: 20, price: 35, privacy : 20, score: 0},
+      {id: 3, rank: 3, name: 'American Express Rewards', image: AmExRewImg, bonuses: 0, programs: 100, insurance: 50, travel: -25, interest: 100, price: 100, privacy : -50, score: 0},
+      {id: 4, rank: 4, name: 'American Express Gold', image: AmExGoldImg, bonuses: 60, programs: 60, insurance: -25, travel: 80, interest: 50, price: 50, privacy : 20, score: 0},
+    ]);
+    const SliderValues = ref([
+      {id: 1, name: 'Bonuses and Offers', value: 0},
+      {id: 2, name: 'Events and Programs', value: 0},
+      {id: 3, name: 'Insurance and Protection', value: 0},
+      {id: 4, name: 'Travel and Mobility', value: 0},
+      {id: 5, name: 'Interest and Contributions', value: 0},
+      {id: 6, name: 'Price and Upkeep', value: 0},
+      {id: 7, name: 'Privacy and Exclusivity', value: 0},
+    ]);
+    const minVal = ref(0);
+    const maxVal = ref(2);
+    const infoOn = ref(false);
+    const statusUpgrades = ref([]);
 
-      watch(sliderValues, (newValues) => {
-        newValues.forEach((SliderValues) => { 
-          getProgress(SliderValues.value);
-          calculateScore();  
+    watch(SliderValues, (newValues) => {
+      newValues.forEach((SliderValues) => { 
+        getProgress(SliderValues.value);
+        calculateScore();  
       });
     }, {deep: true});
 
@@ -147,8 +149,8 @@ export default {
       console.log(resultValue);
       return resultValue;
     };
-    const calculateScore = () => {
-      this.AmExCards.forEach(card => {
+     const calculateScore = () => {
+      AmExCards.value.forEach(card => {
         let bonusScore, programScore, insuranceScore, travelScore, interestScore, priceScore, privacyScore = 0;
 
         bonusScore = SliderValues.value[0].value * card.bonuses;
@@ -161,30 +163,28 @@ export default {
 
         let totalScore = 0;
 
-        totalScore = (bonusScore+programScore+insuranceScore+privacyScore+travelScore+interestScore+priceScore) / 7.5;
+        totalScore = (bonusScore+programScore+insuranceScore+privacyScore+travelScore+interestScore+priceScore) / 6;
 
         totalScore = Math.max(0, Math.min(100, totalScore))
         card.score = totalScore;
 
         AmExCards.value.sort((a, b) => b.score - a.score);
         console.log(AmExCards.value[0].name);
-        
+       
+      });
+      onMounted(() => {
+        statusUpgrades.value = AmExCards.value[0].statusUpgrades;
+
       });
     };
-    displayInfo = (cardId) => {
-
+    return {
+        AmExCards,
+        SliderValues,
+        minVal,
+        maxVal,
+        infoOn,
+        statusUpgrades,
     };
-    onMounted(() => {
-    statusUpgrades.value = AmExCards.value[0].statusUpgrades;
-
-    });
   },
-  computed() {
-   /* popTransition() {
-      return {
-
-      };
-    }*/
-  }
 }
 </script>
